@@ -10,6 +10,10 @@ The goal is to practice the same workflow a corporate Security Operations Center
 
 ## Architecture
 
+![Homelab SIEM architecture](diagrams/architecture.png)
+
+<details><summary>Diagram source (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
     subgraph Sources["Data sources"]
@@ -34,6 +38,8 @@ flowchart LR
     IDX -. "optional" .-> GRAF["Grafana"]
     ANALYST(("Analyst")) -- "HTTPS / Tailscale" --> DASH
 ```
+
+</details>
 
 ## Enterprise equivalents
 
