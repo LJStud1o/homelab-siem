@@ -8,8 +8,9 @@ AGENT_GROUP="${AGENT_GROUP:-default}"
 AGENT_NAME="${AGENT_NAME:-$(hostname -s)}"
 
 apt-get install -y gnupg apt-transport-https curl
-curl -fsSL https://packages.wazuh.com/key/GPG-KEY-WAZUH \
-  | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import
+# --dearmor writes a plain binary keyring that apt reads reliably
+# (the "gnupg-ring:" --import method can leave apt with NO_PUBKEY errors)
+curl -fsSL https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --dearmor --yes -o /usr/share/keyrings/wazuh.gpg
 chmod 644 /usr/share/keyrings/wazuh.gpg
 echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" \
   > /etc/apt/sources.list.d/wazuh.list
