@@ -4,7 +4,7 @@ A self-hosted **Security Information and Event Management (SIEM)** stack built w
 
 The goal is to practice the same workflow a corporate Security Operations Center (SOC) runs on Splunk Enterprise Security or Microsoft Sentinel, using only free, open-source tools on second-hand hardware.
 
-> **Status:** 🚧 In progress. See the [build checklist](#build-checklist).
+> **Status:** ✅ Running: 6 agents, network IDS and custom detections live. See the [build checklist](#build-checklist).
 
 ---
 
@@ -92,15 +92,15 @@ diagrams/                Architecture diagram source
 
 ## Build checklist
 
-- [ ] Wazuh VM created and installed
-- [ ] Default passwords rotated, firewall restricted to LAN
-- [ ] Agents on all 3 Proxmox nodes
-- [ ] Agents on VMs / LXCs and the Windows laptop
-- [ ] Suricata alerts flowing (`rule.groups:suricata`)
+- [x] Wazuh VM created and installed
+- [x] Default passwords rotated, firewall restricted to LAN
+- [x] Agents on all 3 Proxmox nodes
+- [x] Agents on VMs / LXCs and the Windows laptop
+- [x] Suricata alerts flowing (`rule.groups:suricata`)
 - [ ] AdGuard DNS events flowing
-- [ ] Custom rules loaded and tested
+- [x] Custom rules loaded and tested
 - [ ] 90-day retention policy applied
-- [ ] Wazuh VM included in nightly Proxmox backups
+- [x] Wazuh VM included in nightly Proxmox backups
 
 ## Hardware
 

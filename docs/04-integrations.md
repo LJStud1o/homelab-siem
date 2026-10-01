@@ -11,13 +11,27 @@ This is what turns "a bunch of agents" into a SIEM: network, DNS and hypervisor 
 3. Wazuh already ships decoders and rules for Suricata (rules 86600–86604), so the manager needs no changes.
 4. In **Threat Hunting**, filter `rule.groups:suricata`.
 
-**Test** from any LAN machine:
+**Test it entirely inside the lab.** Pick two hosts whose traffic crosses a mirrored switch port, for example two Proxmox nodes.
+
+On host B, serve a harmless file for 2 minutes:
 
 ```bash
-curl http://testmynids.org/uid/index.html
+mkdir -p /tmp/idstest && cd /tmp/idstest
+echo "uid=0(root) gid=0(root) groups=0(root)" > index.html
+timeout 120 python3 -m http.server 8088
 ```
 
-This returns text that the Emerging Threats rule *"GPL ATTACK_RESPONSE id check returned root"* matches. It's harmless and exists specifically for testing an IDS.
+On host A, download it:
+
+```bash
+curl http://<host-B>:8088/index.html
+```
+
+The response contains `uid=0(root)`, which is what an attacker sees after running `id` on a compromised box. The Emerging Threats rule *"GPL ATTACK_RESPONSE id check returned root"* (sid 2100498) matches it.
+
+> **Why not a public test site?** `testmynids.org` no longer resolves (checked Sept 2026). The in-lab test has no outside dependency, and it proves your mirror sees east-west traffic.
+>
+> **Sensor placement matters:** a mirror only sees what crosses the mirrored ports. Wi-Fi clients whose traffic goes router → ISP gateway without touching the switch are invisible to Suricata.
 
 > **Mirror-port gotcha:** the mirror NIC must come up at boot and be in promiscuous mode. NIC names can change when you add PCIe cards (for example `enp4s0f0` → `enp5s0f0` after installing a GPU). If Suricata goes quiet after hardware changes, run `ip -br link` first.
 

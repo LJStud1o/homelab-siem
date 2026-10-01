@@ -64,3 +64,8 @@ In an elevated PowerShell:
 | Agent never appears | `tail /var/ossec/logs/ossec.log` on the agent. Is 1515/tcp reachable? (`nc -vz 10.0.0.12 1515`) |
 | Agent shows "Disconnected" | Is 1514/tcp reachable? Check the firewall (`ufw status`) on the manager |
 | Duplicate agent names | Cloned VMs share `client.keys`. Remove the agent in the dashboard and re-enroll |
+| Second agent with the same name never appears | Wazuh rejects duplicate names at enrollment. On that host: stop the agent, fix `<agent_name>` in `/var/ossec/etc/ossec.conf`, empty `/var/ossec/etc/client.keys`, start the agent |
+| `apt` says `NO_PUBKEY 96B3EE5F29111145` | The key was saved in a format apt can't read. Re-import it with `curl -fsSL https://packages.wazuh.com/key/GPG-KEY-WAZUH \| gpg --dearmor --yes -o /usr/share/keyrings/wazuh.gpg` |
+| LXC: `Temporary failure resolving` | Containers switched from DHCP to a static IP lose their DNS server. On the Proxmox host: `pct set <id> --nameserver "8.8.8.8 1.1.1.1"` (and edit the container's `/etc/resolv.conf` to fix it without a restart) |
+| Windows: `Cannot find any service ... WazuhSvc` | `msiexec` returns before it finishes, or wasn't run as Administrator. Use `Start-Process msiexec.exe -Wait ...` in an **admin** PowerShell, as `scripts/install-agent-windows.ps1` does |
+| Service user (e.g. a game-server account) "is not in the sudoers file" | Expected. Log in with your admin account instead; never give service accounts sudo |

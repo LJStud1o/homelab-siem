@@ -7,7 +7,7 @@ A SIEM you haven't tested is a SIEM you can't trust. Each test below is safe, on
 | 1 | SSH brute force | From your laptop, fail an SSH login to a test VM 8+ times: `for i in $(seq 8); do ssh fakeuser@<test-vm>; done` (just press Enter at each password prompt) | 5710 / 5712 "sshd: brute force" | T1110 |
 | 2 | Proxmox web UI brute force | Enter a wrong password in the Proxmox login page 5 times | **100100**, then **100101** | T1110.001 |
 | 3 | Credential file tampering | `echo "# test" >> /root/.ssh/authorized_keys` on a node, then remove the line | **100150** (level 12), within 15 min (next scheduled scan) | T1098.004 |
-| 4 | Network IDS hit | `curl http://testmynids.org/uid/index.html` | 86601 "Suricata: Alert – GPL ATTACK_RESPONSE…" | T1033 |
+| 4 | Network IDS hit | Serve a file containing `uid=0(root)` from one node and `curl` it from another (see [04](04-integrations.md)) | 86601 "Suricata: Alert – GPL ATTACK_RESPONSE…" | T1033 |
 | 5 | Malicious DNS lookup | Add `test-malware.example:` to the CDB list, then `nslookup test-malware.example <adguard-ip>` | **100303** | T1071.004 |
 | 6 | New local account | `sudo useradd testuser && sudo userdel testuser` | 5902 "New user added" | T1136.001 |
 | 7 | Vulnerable package | Nothing to do: check **Vulnerability Detection** | CVE list per agent | T1190 |
