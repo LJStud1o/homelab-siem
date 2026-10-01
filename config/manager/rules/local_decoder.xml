@@ -1,0 +1,18 @@
+<!--
+  Custom decoders. On the manager, merge into /var/ossec/etc/decoders/local_decoder.xml
+  (or use the dashboard: Server management > Decoders > Custom decoders).
+  Test with: /var/ossec/bin/wazuh-logtest
+-->
+
+<!-- Proxmox web UI login failures, e.g.:
+     pvedaemon[1234]: authentication failure; rhost=::ffff:10.0.0.50 user=root@pam msg=Authentication failure -->
+<decoder name="pvedaemon">
+  <program_name>pvedaemon</program_name>
+</decoder>
+
+<decoder name="pvedaemon-authfail">
+  <parent>pvedaemon</parent>
+  <prematch>authentication failure;</prematch>
+  <regex type="pcre2">rhost=(?:::ffff:)?(\S+) user=(\S+)</regex>
+  <order>srcip,dstuser</order>
+</decoder>

@@ -1,0 +1,27 @@
+# Secrets and lab-specific values: never commit
+.env
+*.env
+!.env.example
+wazuh-install-files.tar
+wazuh-passwords.txt
+*passwords*
+*.pem
+*.key
+*.crt
+client.keys
+authorized_keys
+
+# Raw exports can contain real IPs, hostnames and usernames
+exports/
+*.ndjson
+*.pcap
+*.pcapng
+*.log
+
+# Screenshots go through the redaction checklist in docs/08 first
+screenshots/raw/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/

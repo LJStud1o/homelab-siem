@@ -1,0 +1,35 @@
+<!--
+  Shared agent config for the "proxmox" group.
+  Paste into: Agents management > Groups > proxmox > Files > agent.conf
+-->
+<agent_config>
+
+  <!-- File integrity monitoring: alert the moment cluster, SSH or network config changes -->
+  <syscheck>
+    <!-- Full scan every 15 min. /etc/pve is a FUSE filesystem (pmxcfs), where inotify-based
+         realtime monitoring doesn't fire, so it relies on this schedule. -->
+    <frequency>900</frequency>
+    <directories report_changes="yes" check_all="yes">/etc/pve</directories>
+    <directories realtime="yes" report_changes="yes" check_all="yes">/etc/ssh</directories>
+    <directories realtime="yes" report_changes="yes" check_all="yes">/etc/network/interfaces</directories>
+    <!-- On Proxmox, /root/.ssh/authorized_keys is a symlink into /etc/pve/priv (covered above) -->
+    <directories realtime="yes" check_all="yes" follow_symbolic_link="yes">/root/.ssh</directories>
+
+    <!-- /etc/pve contains live, frequently rewritten state files; ignore the noisy ones -->
+    <ignore type="sregex">^/etc/pve/.rrd|^/etc/pve/.version|^/etc/pve/.members|^/etc/pve/.clusterlog|^/etc/pve/nodes/.*/lrm_status|^/etc/pve/priv/lock</ignore>
+    <ignore type="sregex">.swp$|.tmp$</ignore>
+  </syscheck>
+
+  <!-- Proxmox web UI access log (apache-style). Auth failures arrive via journald (pvedaemon). -->
+  <localfile>
+    <log_format>apache</log_format>
+    <location>/var/log/pveproxy/access.log</location>
+  </localfile>
+
+  <!-- journald (SSH, pvedaemon, sudo, systemd). Linux agents collect this by default; kept here for clarity. -->
+  <localfile>
+    <log_format>journald</log_format>
+    <location>journald</location>
+  </localfile>
+
+</agent_config>

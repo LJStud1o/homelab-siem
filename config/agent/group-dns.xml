@@ -1,0 +1,15 @@
+<!--
+  Shared agent config for the "dns" group (the AdGuard Home container).
+  Paste into: Agents management > Groups > dns > Files > agent.conf
+
+  AdGuard writes one JSON object per DNS query. The community-scripts install
+  path is shown below. If yours differs, find it with:
+      find / -name 'querylog.json' 2>/dev/null
+  AdGuard must have "Query logs" enabled (Settings > General settings).
+-->
+<agent_config>
+  <localfile>
+    <log_format>json</log_format>
+    <location>/opt/AdGuardHome/data/querylog.json</location>
+  </localfile>
+</agent_config>

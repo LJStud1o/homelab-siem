@@ -1,0 +1,22 @@
+flowchart LR
+    subgraph Sources["Data sources"]
+        N1["Proxmox node 1<br/>host logs, FIM"]
+        N2["Proxmox node 2<br/>host logs, FIM"]
+        N3["Proxmox node 3<br/>Suricata IDS (eve.json)"]
+        DNS["AdGuard Home<br/>DNS query log"]
+        VM["Linux VMs / LXCs"]
+        WIN["Windows laptop"]
+    end
+
+    SW["Managed switch<br/>port mirroring"] -- "mirrored traffic" --> N3
+
+    subgraph SIEM["Wazuh all-in-one (VM on node 2)"]
+        MGR["Wazuh server<br/>decoders + rules"]
+        IDX[("Wazuh indexer<br/>OpenSearch")]
+        DASH["Wazuh dashboard"]
+        MGR --> IDX --> DASH
+    end
+
+    N1 & N2 & N3 & DNS & VM & WIN -- "Wazuh agent<br/>1514/tcp, encrypted" --> MGR
+    IDX -. "optional" .-> GRAF["Grafana"]
+    ANALYST(("Analyst")) -- "HTTPS / Tailscale" --> DASH

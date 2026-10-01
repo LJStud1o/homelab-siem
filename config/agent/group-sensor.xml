@@ -1,0 +1,11 @@
+<!--
+  Shared agent config for the "sensor" group (the node running Suricata on the mirror port).
+  Paste into: Agents management > Groups > sensor > Files > agent.conf
+  Wazuh ships Suricata decoders and rules. No manager-side changes are needed.
+-->
+<agent_config>
+  <localfile>
+    <log_format>json</log_format>
+    <location>/var/log/suricata/eve.json</location>
+  </localfile>
+</agent_config>

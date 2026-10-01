@@ -1,0 +1,87 @@
+<!--
+  Homelab detection rules (IDs 100100-100499).
+  On the manager, merge into /var/ossec/etc/rules/local_rules.xml, then:
+      sudo /var/ossec/bin/wazuh-logtest          # paste a sample log line to test
+      sudo systemctl restart wazuh-manager
+-->
+
+<!-- ============ Proxmox web UI ============ -->
+<group name="local,proxmox,">
+
+  <rule id="100100" level="5">
+    <decoded_as>pvedaemon</decoded_as>
+    <match>authentication failure</match>
+    <description>Proxmox web UI: failed login for $(dstuser) from $(srcip)</description>
+    <mitre><id>T1110</id></mitre>
+    <group>authentication_failed,</group>
+  </rule>
+
+  <rule id="100101" level="10" frequency="5" timeframe="120">
+    <if_matched_sid>100100</if_matched_sid>
+    <same_srcip />
+    <description>Proxmox web UI: possible brute force (5+ failures in 2 min) from $(srcip)</description>
+    <mitre><id>T1110.001</id></mitre>
+    <group>authentication_failures,</group>
+  </rule>
+
+</group>
+
+<!-- ============ File integrity: credential files on hypervisors ============ -->
+<group name="local,syscheck,proxmox,">
+
+  <rule id="100150" level="12">
+    <if_sid>550,553,554</if_sid>
+    <field name="file">^/etc/pve/priv/|^/root/.ssh/authorized_keys|^/etc/ssh/sshd_config</field>
+    <description>Critical access file changed on hypervisor: $(file)</description>
+    <mitre><id>T1098.004</id></mitre>
+  </rule>
+
+</group>
+
+<!-- ============ Suricata ============ -->
+<group name="local,suricata,ids,">
+
+  <!-- 86601 = built-in "Suricata: Alert". Escalate severity-1 signatures. -->
+  <rule id="100200" level="10">
+    <if_sid>86601</if_sid>
+    <field name="alert.severity">^1$</field>
+    <description>Suricata HIGH severity: $(alert.signature) ($(src_ip) -> $(dest_ip))</description>
+  </rule>
+
+</group>
+
+<!-- ============ AdGuard Home DNS ============ -->
+<group name="local,dns,adguard,">
+
+  <!-- Base: any AdGuard query-log line (has QH = query host, QT = query type). Level 0 = not stored. -->
+  <rule id="100300" level="0">
+    <decoded_as>json</decoded_as>
+    <field name="QH">\.</field>
+    <field name="QT">\w</field>
+    <description>AdGuard DNS query: $(QH)</description>
+  </rule>
+
+  <!-- Blocked queries. Level 0 because ad blocks are extremely noisy. Raise to 3 to index them. -->
+  <rule id="100301" level="0">
+    <if_sid>100300</if_sid>
+    <field name="Result.IsFiltered">^true$</field>
+    <description>AdGuard blocked $(QH) for client $(IP)</description>
+  </rule>
+
+  <!-- One client hammering blocked domains can mean malware beaconing or a misbehaving IoT device -->
+  <rule id="100302" level="7" frequency="200" timeframe="300">
+    <if_matched_sid>100301</if_matched_sid>
+    <same_field>IP</same_field>
+    <description>AdGuard: client $(IP) made 200+ blocked lookups in 5 min</description>
+    <mitre><id>T1071.004</id></mitre>
+  </rule>
+
+  <!-- Threat intel: lookup of a domain in the CDB list (see config/manager/lists) -->
+  <rule id="100303" level="12">
+    <if_sid>100300</if_sid>
+    <list field="QH" lookup="match_key">etc/lists/malicious-domains</list>
+    <description>DNS lookup of known-malicious domain $(QH) by $(IP)</description>
+    <mitre><id>T1071.004</id></mitre>
+  </rule>
+
+</group>
