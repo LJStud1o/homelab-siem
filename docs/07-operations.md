@@ -15,7 +15,8 @@ Check disk usage weekly for the first month:
 
 ```bash
 df -h /
-curl -sk -u admin:'<password>' https://localhost:9200/_cat/indices/wazuh-alerts-*?v\&s=index
+curl -sk -u admin https://localhost:9200/_cat/indices/wazuh-alerts-*?v\&s=index
+# curl prompts for the admin password, so it never lands in your shell history
 ```
 
 ## Backups
